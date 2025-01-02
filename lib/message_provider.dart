@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -7,7 +8,7 @@ class MessageProvider with ChangeNotifier {
 
   List<String> get messages => _messages;
 
-  final String _baseUrl = 'http://localhost:5000';
+  final String _baseUrl = Platform.isAndroid ? 'http://10.0.2.2:5000/messages':'http://localhost:5000/messages';
 
   Future<void> fetchMessages() async {
     final response = await http.get(Uri.parse('$_baseUrl/messages'));

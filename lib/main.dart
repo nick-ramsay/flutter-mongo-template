@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:accordion/accordion.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
+import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -159,14 +161,30 @@ class MessageProvider extends ChangeNotifier {
   List<dynamic> messages = [];
   bool isLoading = false;
 
-  final String baseUrl = 'http://localhost:5000/messages';
+  final String baseUrl = Platform.isAndroid ? 'http://10.0.2.2:5000/messages':'http://localhost:5000/messages';
+
+  Timer? _timer;
 
   MessageProvider() {
-    fetchMessages();
+    fetchMessages(loadingStatus: true);
+    _startAutoFetch();
   }
 
-  Future<void> fetchMessages() async {
-    isLoading = true;
+   void _startAutoFetch() {
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
+      fetchMessages(loadingStatus: false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> fetchMessages({bool? loadingStatus}) async {
+    print( loadingStatus.runtimeType);
+    isLoading = loadingStatus as bool;
     notifyListeners();
     try {
       final response = await http.get(Uri.parse(baseUrl));
@@ -189,7 +207,7 @@ class MessageProvider extends ChangeNotifier {
           'created_date': currentTimestamp.toIso8601String()
         }),
       );
-      fetchMessages();
+      fetchMessages(loadingStatus: true);
     } catch (error) {
       print('Error adding message: $error');
     }
@@ -198,9 +216,11 @@ class MessageProvider extends ChangeNotifier {
   Future<void> deleteMessage(String id) async {
     try {
       await http.delete(Uri.parse('$baseUrl/$id'));
-      fetchMessages();
+      fetchMessages(loadingStatus: true);
     } catch (error) {
       print('Error deleting message: $error');
     }
   }
+
+  
 }
