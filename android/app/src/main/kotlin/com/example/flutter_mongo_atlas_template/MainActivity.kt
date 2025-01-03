@@ -1,4 +1,4 @@
-package com.example.flutter_mongo_atlas_template
+package com.example.flutter_mongo_template
 
 import io.flutter.embedding.android.FlutterActivity
 

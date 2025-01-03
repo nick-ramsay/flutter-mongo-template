@@ -1,4 +1,4 @@
-# flutter_mongo_atlas_template
+# flutter_mongo_template
 
 A new Flutter project.
 

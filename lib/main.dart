@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:accordion/accordion.dart';
@@ -115,24 +116,6 @@ class MessageScreen extends StatelessWidget {
                     },
                   ),
           ),
-          Expanded(
-              child: Accordion(
-                  contentBackgroundColor: Color(0xff23191c),
-                  contentBorderColor: Color(0xffe83e8c),
-                  contentBorderWidth: 1,
-                  contentHorizontalPadding: 20,
-                  //headerBackgroundColor: Color(0xff23191c),
-                  headerBorderColor: Color(0xffe83e8c),
-                  headerBorderWidth: 1,
-                  headerPadding: EdgeInsets.only(top:10.0, bottom: 10.0, left: 20.0),
-                  children: [
-                AccordionSection(
-                  isOpen: false,
-                  contentVerticalPadding: 20,
-                  header: const Text('Buttons to Test RUM'),
-                  content: const Text("Content Text"),
-                ),
-              ]))
         ],
       ),
     );
@@ -161,7 +144,7 @@ class MessageProvider extends ChangeNotifier {
   List<dynamic> messages = [];
   bool isLoading = false;
 
-  final String baseUrl = Platform.isAndroid ? 'http://10.0.2.2:5000/messages':'http://localhost:5000/messages';
+  final String baseUrl = kIsWeb ? 'http://localhost:5000/messages':(Platform.isAndroid ? 'http://10.0.2.2:5000/messages':'http://localhost:5000/messages');
 
   Timer? _timer;
 
@@ -183,7 +166,6 @@ class MessageProvider extends ChangeNotifier {
   }
 
   Future<void> fetchMessages({bool? loadingStatus}) async {
-    print( loadingStatus.runtimeType);
     isLoading = loadingStatus as bool;
     notifyListeners();
     try {
