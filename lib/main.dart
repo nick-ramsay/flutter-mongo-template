@@ -24,14 +24,19 @@ void main() async {
     ),
   );
 
-  await DatadogSdk.runApp(configuration, TrackingConsent.granted, () async {
-    runApp(
-      ChangeNotifierProvider(
-        create: (_) => MessageProvider(),
-        child: MyApp(),
-      ),
-    );
-  });
+  void startApp = runApp(
+    ChangeNotifierProvider(
+      create: (_) => MessageProvider(),
+      child: MyApp(),
+    ),
+  );
+  if (Platform.isAndroid || Platform.isIOS) {
+    await DatadogSdk.runApp(configuration, TrackingConsent.granted, () async {
+      startApp;
+    });
+  } else {
+    startApp;
+  }
 }
 
 class MyApp extends StatelessWidget {
