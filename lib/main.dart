@@ -1,20 +1,37 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:accordion/accordion.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+//import 'package:accordion/accordion.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 
-void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => MessageProvider(),
-      child: MyApp(),
+void main() async {
+  await dotenv.load(fileName: ".env");
+
+  final configuration = DatadogConfiguration(
+    clientToken: dotenv.env['clientToken'].toString(),
+    env: 'staging',
+    site: DatadogSite.us1,
+    nativeCrashReportEnabled: true,
+    loggingConfiguration: DatadogLoggingConfiguration(),
+    rumConfiguration: DatadogRumConfiguration(
+      applicationId: dotenv.env['applicationId'].toString(),
     ),
   );
+
+  await DatadogSdk.runApp(configuration, TrackingConsent.granted, () async {
+    runApp(
+      ChangeNotifierProvider(
+        create: (_) => MessageProvider(),
+        child: MyApp(),
+      ),
+    );
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -144,7 +161,11 @@ class MessageProvider extends ChangeNotifier {
   List<dynamic> messages = [];
   bool isLoading = false;
 
-  final String baseUrl = kIsWeb ? 'http://localhost:5000/messages':(Platform.isAndroid ? 'http://10.0.2.2:5000/messages':'http://localhost:5000/messages');
+  final String baseUrl = kIsWeb
+      ? 'http://localhost:5000/messages'
+      : (Platform.isAndroid
+          ? 'http://10.0.2.2:5000/messages'
+          : 'http://localhost:5000/messages');
 
   Timer? _timer;
 
@@ -153,7 +174,7 @@ class MessageProvider extends ChangeNotifier {
     _startAutoFetch();
   }
 
-   void _startAutoFetch() {
+  void _startAutoFetch() {
     _timer = Timer.periodic(Duration(seconds: 5), (timer) {
       fetchMessages(loadingStatus: false);
     });
@@ -203,6 +224,4 @@ class MessageProvider extends ChangeNotifier {
       print('Error deleting message: $error');
     }
   }
-
-  
 }
