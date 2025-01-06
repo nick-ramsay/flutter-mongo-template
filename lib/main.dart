@@ -8,6 +8,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:go_router/go_router.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 
 void main() async {
@@ -39,18 +40,39 @@ void main() async {
   }
 }
 
+final GoRouter _router = GoRouter(routes: <RouteBase>[
+  GoRoute(
+    path: '/',
+    builder: (BuildContext context, GoRouterState state) {
+      return MessageScreen();
+    },
+    routes: <RouteBase>[
+      GoRoute(
+        path: 'additionalRum',
+        builder: (BuildContext context, GoRouterState state) {
+          return AdditionalRumFunctionality();
+        },
+      ),
+    ],
+  ),
+], observers: [
+  DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
+]);
+
 class MyApp extends StatelessWidget {
+  /// Constructs a [MyApp]
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Message App',
+    return MaterialApp.router(
+      routerConfig: _router,
       theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
             seedColor: Color(0xffe83e8c),
             brightness: Brightness.dark,
           )),
-      home: MessageScreen(),
     );
   }
 }
@@ -138,7 +160,37 @@ class MessageScreen extends StatelessWidget {
                     },
                   ),
           ),
+          Container(
+              margin: const EdgeInsets.only(top: 10.0, bottom: 15.0),
+              child: ElevatedButton(
+                child: const Text('Additional RUM Functionality'),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xffe83e8c).withOpacity(0.5),
+                    foregroundColor: Colors.white,
+                    elevation: 5,
+                ),
+                onPressed: () => context.go("/additionalRum"),
+              )),
         ],
+      ),
+    );
+  }
+}
+
+class AdditionalRumFunctionality extends StatelessWidget {
+  const AdditionalRumFunctionality({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Additional RUM Functionality'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => context.go('/'),
+          child: const Text('Go back!'),
+        ),
       ),
     );
   }
