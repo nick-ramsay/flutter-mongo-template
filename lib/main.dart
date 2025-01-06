@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
+import 'package:datadog_tracking_http_client/datadog_tracking_http_client.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -19,11 +20,16 @@ void main() async {
     env: 'staging',
     site: DatadogSite.us1,
     nativeCrashReportEnabled: true,
+    firstPartyHosts: ['http://localhost:5000', '10.0.2.2:5000'],
     loggingConfiguration: DatadogLoggingConfiguration(),
     rumConfiguration: DatadogRumConfiguration(
       applicationId: dotenv.env['applicationId'].toString(),
+      traceSampleRate: 100.0,
+      sessionSamplingRate: 100.0,
     ),
   );
+
+  configuration.enableHttpTracking();
 
   void startApp = runApp(
     ChangeNotifierProvider(
