@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-//import 'package:accordion/accordion.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'dart:async';
@@ -90,96 +89,99 @@ class MessageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<MessageProvider>(context);
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: Text('Flutter MongoDB Template')),
-      body: Column(
-        children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
-                child: SizedBox(
-                  height: 150,
-                  child: Image.asset(
-                    'images/flutterLogo.png',
-                    fit: BoxFit.scaleDown,
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-                child: Padding(
-              padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
-              child: SizedBox(
-                height: 100,
-                child: Image.asset(
-                  'images/mongoDbLogo.png',
-                  fit: BoxFit.scaleDown,
-                ),
-              ),
-            )),
-          ]),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
+    return RumUserActionDetector(
+        rum: DatadogSdk.instance.rum,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(title: Text('Flutter MongoDB Template')),
+          body: Column(
+            children: [
+              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
                 Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      labelText: 'Enter a message',
-                      border: OutlineInputBorder(),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
+                    child: SizedBox(
+                      height: 150,
+                      child: Image.asset(
+                        'images/flutterLogo.png',
+                        fit: BoxFit.scaleDown,
+                      ),
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    DateTime currentTimestamp = DateTime.now();
-                    provider.addMessage(_controller.text, currentTimestamp);
-                    _controller.clear();
-                  },
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: provider.isLoading
-                ? Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    itemCount: provider.messages.length,
-                    itemBuilder: (context, index) {
-                      final message = provider.messages[index];
-                      return Card(
-                          child: ListTile(
-                        title: Text(message['message']),
-                        subtitle: Text(DateFormat('d MMM y, hh:mm aaa').format(
-                            DateTime.parse(message['created_date']).toLocal())),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () {
-                            provider.deleteMessage(message['_id']);
-                          },
-                        ),
-                      ));
-                    },
+                Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
+                  child: SizedBox(
+                    height: 100,
+                    child: Image.asset(
+                      'images/mongoDbLogo.png',
+                      fit: BoxFit.scaleDown,
+                    ),
                   ),
-          ),
-          Container(
-              margin: const EdgeInsets.only(top: 10.0, bottom: 15.0),
-              child: ElevatedButton(
-                child: const Text('Additional RUM Functionality'),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xffe83e8c).withOpacity(0.5),
-                    foregroundColor: Colors.white,
-                    elevation: 5,
+                )),
+              ]),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: const InputDecoration(
+                          labelText: 'Enter a message',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.send),
+                      onPressed: () {
+                        DateTime currentTimestamp = DateTime.now();
+                        provider.addMessage(_controller.text, currentTimestamp);
+                        _controller.clear();
+                      },
+                    ),
+                  ],
                 ),
-                onPressed: () => context.go("/additionalRum"),
-              )),
-        ],
-      ),
-    );
+              ),
+              Expanded(
+                child: provider.isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        itemCount: provider.messages.length,
+                        itemBuilder: (context, index) {
+                          final message = provider.messages[index];
+                          return Card(
+                              child: ListTile(
+                            title: Text(message['message']),
+                            subtitle: Text(DateFormat('d MMM y, hh:mm aaa')
+                                .format(DateTime.parse(message['created_date'])
+                                    .toLocal())),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                provider.deleteMessage(message['_id']);
+                              },
+                            ),
+                          ));
+                        },
+                      ),
+              ),
+              Container(
+                  margin: const EdgeInsets.only(top: 10.0, bottom: 15.0),
+                  child: ElevatedButton(
+                    child: const Text('Additional RUM Functionality'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xffe83e8c).withOpacity(0.5),
+                      foregroundColor: Colors.white,
+                      elevation: 5,
+                    ),
+                    onPressed: () => context.go("/additionalRum"),
+                  )),
+            ],
+          ),
+        ));
   }
 }
 
@@ -188,17 +190,26 @@ class AdditionalRumFunctionality extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Additional RUM Functionality'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => context.go('/'),
-          child: const Text('Go back!'),
-        ),
-      ),
-    );
+    return RumUserActionDetector(
+        rum: DatadogSdk.instance.rum,
+        child: Scaffold(
+            appBar: AppBar(
+              title: const Text('Additional RUM Functionality'),
+            ),
+            body: Column(children: [
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => context.go('/'),
+                  child: const Text('Go back!'),
+                ),
+              ),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => context.go('/'),
+                  child: const Text('Go back!'),
+                ),
+              ),
+            ])));
   }
 }
 
