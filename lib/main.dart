@@ -20,7 +20,7 @@ void main() async {
     env: 'staging',
     site: DatadogSite.us1,
     nativeCrashReportEnabled: true,
-    firstPartyHosts: ['http://localhost:5000', '10.0.2.2:5000'],
+    firstPartyHosts: ['localhost', '10.0.2.2'],
     loggingConfiguration: DatadogLoggingConfiguration(),
     rumConfiguration: DatadogRumConfiguration(
       applicationId: dotenv.env['applicationId'].toString(),
